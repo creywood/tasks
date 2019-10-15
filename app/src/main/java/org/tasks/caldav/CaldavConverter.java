@@ -12,13 +12,16 @@ import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 import java.util.Locale;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.property.Completed;
 import net.fortuna.ical4j.model.property.Due;
 import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.RelatedTo;
 import net.fortuna.ical4j.model.property.Status;
 import org.tasks.data.CaldavTask;
 import timber.log.Timber;
@@ -152,6 +155,14 @@ public class CaldavConverter {
     }
     remote.setLastModified(newDateTime(task.getModificationDate()).toUTC().getMillis());
     remote.setPriority(toRemote(remote.getPriority(), task.getPriority()));
+
+    // Update parent relationship
+    LinkedList<Property> unknownProperties = remote.getUnknownProperties();
+    if (caldavTask.getParent() != 0) {
+      RelatedTo parentProperty = new RelatedTo(caldavTask.getRemoteParent());
+      unknownProperties.add(parentProperty);
+    }
+
     return remote;
   }
 }
